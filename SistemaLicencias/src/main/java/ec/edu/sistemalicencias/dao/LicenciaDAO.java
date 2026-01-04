@@ -65,7 +65,13 @@ public class LicenciaDAO implements Persistible<Licencia> {
 
             stmt.setString(1, licencia.getNumeroLicencia());
             stmt.setLong(2, licencia.getConductorId());
-            stmt.setString(3, licencia.getTipoLicencia());
+
+            String tipoCorto = licencia.getTipoLicencia();
+            if (tipoCorto.length() > 5) {
+                tipoCorto = tipoCorto.substring(0, 5);
+            }
+            stmt.setString(3, tipoCorto);
+
             stmt.setDate(4, Date.valueOf(licencia.getFechaEmision()));
             stmt.setDate(5, Date.valueOf(licencia.getFechaVencimiento()));
             stmt.setBoolean(6, licencia.isActiva());
@@ -92,7 +98,8 @@ public class LicenciaDAO implements Persistible<Licencia> {
             }
 
         } catch (SQLException e) {
-            throw new BaseDatosException("Error al insertar licencia: " + e.getMessage(), e);
+            System.err.println("DEBUG SQL Error: " + e.getErrorCode() + " - " + e.getMessage());
+            throw new BaseDatosException("Error en BD: " + e.getMessage(), e);
         } finally {
             cerrarRecursos(conn, stmt, rs);
         }
@@ -344,34 +351,38 @@ public class LicenciaDAO implements Persistible<Licencia> {
      */
     private Licencia mapearResultSet(ResultSet rs) throws SQLException {
         Licencia licencia = new Licencia();
-
         licencia.setId(rs.getLong("id"));
         licencia.setNumeroLicencia(rs.getString("numero_licencia"));
         licencia.setConductorId(rs.getLong("conductor_id"));
-        licencia.setTipoLicencia(rs.getString("tipo_licencia"));
 
-        Date fechaEmision = rs.getDate("fecha_emision");
-        if (fechaEmision != null) {
-            licencia.setFechaEmision(fechaEmision.toLocalDate());
+        String tipoBD = rs.getString("tipo_licencia");
+        if (tipoBD != null) {
+            if (tipoBD.startsWith("TIPO_")) {
+                tipoBD = tipoBD.replace("TIPO_", "");
+            }
+            try {
+                licencia.setTipoLicencia(tipoBD);
+            } catch (Exception e) {
+                System.err.println("Error al validar tipo de licencia: " + tipoBD);
+            }
         }
 
-        Date fechaVencimiento = rs.getDate("fecha_vencimiento");
-        if (fechaVencimiento != null) {
-            licencia.setFechaVencimiento(fechaVencimiento.toLocalDate());
-        }
+        Date fEmision = rs.getDate("fecha_emision");
+        if (fEmision != null) licencia.setFechaEmision(fEmision.toLocalDate());
+
+        Date fVencimiento = rs.getDate("fecha_vencimiento");
+        if (fVencimiento != null) licencia.setFechaVencimiento(fVencimiento.toLocalDate());
 
         licencia.setActiva(rs.getBoolean("activa"));
-
-        long pruebaId = rs.getLong("prueba_psicometrica_id");
-        if (!rs.wasNull()) {
-            licencia.setPruebaPsicometricaId(pruebaId);
-        }
-
         licencia.setObservaciones(rs.getString("observaciones"));
+
+        long pId = rs.getLong("prueba_psicometrica_id");
+        if (!rs.wasNull()) {
+            licencia.setPruebaPsicometricaId(pId);
+        }
 
         return licencia;
     }
-
     /**
      * Cierra recursos de base de datos
      */

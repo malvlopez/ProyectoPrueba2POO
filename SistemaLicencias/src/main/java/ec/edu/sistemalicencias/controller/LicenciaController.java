@@ -1,6 +1,7 @@
 package ec.edu.sistemalicencias.controller;
 
 import com.itextpdf.text.DocumentException;
+import ec.edu.sistemalicencias.model.TipoLicenciaConstantes;
 import ec.edu.sistemalicencias.model.entities.Conductor;
 import ec.edu.sistemalicencias.model.entities.Licencia;
 import ec.edu.sistemalicencias.model.entities.PruebaPsicometrica;
@@ -84,9 +85,15 @@ public class LicenciaController {
      */
     public Licencia emitirLicencia(Long conductorId, String tipoLicencia, Long pruebaPsicometricaId)
             throws LicenciaException {
-        return licenciaService.emitirLicencia(conductorId, tipoLicencia, pruebaPsicometricaId);
-    }
 
+        String codigoLimpio = tipoLicencia;
+
+        if (tipoLicencia != null && tipoLicencia.length() > 5) {
+            codigoLimpio = TipoLicenciaConstantes.obtenerCodigoDesdeNombre(tipoLicencia);
+        }
+
+        return licenciaService.emitirLicencia(conductorId, codigoLimpio, pruebaPsicometricaId);
+    }
     /**
      * Busca un conductor por cédula
      * @param cedula Número de cédula

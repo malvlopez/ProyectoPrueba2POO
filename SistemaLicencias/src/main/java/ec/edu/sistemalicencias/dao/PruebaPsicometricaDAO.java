@@ -206,8 +206,10 @@ public class PruebaPsicometricaDAO implements Persistible<PruebaPsicometrica> {
      * @throws BaseDatosException Si ocurre un error
      */
     public PruebaPsicometrica obtenerUltimaPruebaAprobada(Long conductorId) throws BaseDatosException {
-        String sql = "SELECT * FROM pruebas_psicometricas WHERE conductor_id = ? " +
-                "AND aprobado = TRUE ORDER BY fecha_realizacion DESC LIMIT 1";
+        String sql = "SELECT * FROM pruebas_psicometricas " +
+                "WHERE conductor_id = ? " +
+                "AND ((nota_reaccion + nota_atencion + nota_coordinacion + nota_percepcion + nota_psicologica) / 5) >= 70.0 " +
+                "ORDER BY fecha_realizacion DESC LIMIT 1";
 
         Connection conn = null;
         PreparedStatement stmt = null;
@@ -233,12 +235,25 @@ public class PruebaPsicometricaDAO implements Persistible<PruebaPsicometrica> {
         }
     }
 
-    /**
-     * Elimina una prueba
-     * @param id ID de la prueba a eliminar
-     * @return true si se eliminó correctamente
-     * @throws BaseDatosException Si ocurre un error
-     */
+    private PruebaPsicometrica mapearResultSet(ResultSet rs) throws SQLException {
+        PruebaPsicometrica prueba = new PruebaPsicometrica();
+
+        prueba.setId(rs.getLong("id"));
+        prueba.setConductorId(rs.getLong("conductor_id"));
+        prueba.setNotaReaccion(rs.getDouble("nota_reaccion"));
+        prueba.setNotaAtencion(rs.getDouble("nota_atencion"));
+        prueba.setNotaCoordinacion(rs.getDouble("nota_coordinacion"));
+        prueba.setNotaPercepcion(rs.getDouble("nota_percepcion"));
+        prueba.setNotaPsicologica(rs.getDouble("nota_psicologica"));
+        prueba.setObservaciones(rs.getString("observaciones"));
+
+        Timestamp fechaPrueba = rs.getTimestamp("fecha_realizacion");
+        if (fechaPrueba != null) {
+            prueba.setFechaRealizacion(fechaPrueba.toLocalDateTime());
+        }
+
+        return prueba;
+    }
     @Override
     public boolean eliminar(Long id) throws BaseDatosException {
         String sql = "DELETE FROM pruebas_psicometricas WHERE id = ?";
@@ -266,26 +281,6 @@ public class PruebaPsicometricaDAO implements Persistible<PruebaPsicometrica> {
      * @param rs ResultSet
      * @return Objeto PruebaPsicometrica
      * @throws SQLException Si ocurre un error
-     */
-    private PruebaPsicometrica mapearResultSet(ResultSet rs) throws SQLException {
-        PruebaPsicometrica prueba = new PruebaPsicometrica();
-
-        prueba.setId(rs.getLong("id"));
-        prueba.setConductorId(rs.getLong("conductor_id"));
-        prueba.setNotaReaccion(rs.getDouble("nota_reaccion"));
-        prueba.setNotaAtencion(rs.getDouble("nota_atencion"));
-        prueba.setNotaCoordinacion(rs.getDouble("nota_coordinacion"));
-        prueba.setNotaPercepcion(rs.getDouble("nota_percepcion"));
-        prueba.setNotaPsicologica(rs.getDouble("nota_psicologica"));
-        prueba.setObservaciones(rs.getString("observaciones"));
-
-        Timestamp fechaRealizacion = rs.getTimestamp("fecha_realizacion");
-        if (fechaRealizacion != null) {
-            prueba.setFechaRealizacion(fechaRealizacion.toLocalDateTime());
-        }
-
-        return prueba;
-    }
 
     /**
      * Cierra recursos de base de datos

@@ -1,9 +1,9 @@
 
 package ec.edu.sistemalicencias;
 
+import com.mysql.cj.log.Log;
 import ec.edu.sistemalicencias.config.DatabaseConfig;
-import ec.edu.sistemalicencias.view.MainView;
-
+import ec.edu.sistemalicencias.view.LoginView;
 import javax.swing.*;
 
 /**
@@ -40,8 +40,8 @@ public class Main {
             }
 
             // Iniciar ventana principal
-            MainView mainView = new MainView();
-            mainView.setVisible(true);
+            LoginView login = new LoginView();
+            login.setVisible(true);
         });
     }
 
