@@ -25,6 +25,8 @@ dependencies {
 
     // IntelliJ Forms Runtime (para GUI Designer)
     implementation 'com.intellij:forms_rt:7.0.3'
+
+    implementation 'org.postgresql:postgresql:42.7.2'
 }
 
 application {

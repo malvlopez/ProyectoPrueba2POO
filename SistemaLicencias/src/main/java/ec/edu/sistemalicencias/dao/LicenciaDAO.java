@@ -289,7 +289,8 @@ public class LicenciaDAO implements Persistible<Licencia> {
      * @throws BaseDatosException Si ocurre un error
      */
     public List<Licencia> obtenerLicenciasVigentes() throws BaseDatosException {
-        String sql = "SELECT * FROM licencias WHERE activa = TRUE AND fecha_vencimiento > CURDATE() " +
+        String sql = "SELECT * FROM licencias " +
+                "WHERE activa = TRUE AND fecha_vencimiento > CURRENT_DATE " +
                 "ORDER BY fecha_vencimiento";
 
         Connection conn = null;

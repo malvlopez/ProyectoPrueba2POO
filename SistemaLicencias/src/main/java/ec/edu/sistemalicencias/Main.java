@@ -1,9 +1,9 @@
-
 package ec.edu.sistemalicencias;
 
-import com.mysql.cj.log.Log;
 import ec.edu.sistemalicencias.config.DatabaseConfig;
+import ec.edu.sistemalicencias.view.MainView;
 import ec.edu.sistemalicencias.view.LoginView;
+
 import javax.swing.*;
 
 /**
@@ -26,22 +26,22 @@ public class Main {
             System.err.println("No se pudo establecer el Look and Feel: " + e.getMessage());
         }
 
-        // Verificar conexión a base de datos
+        // Instancia de configuración de base de datos (PostgreSQL)
         DatabaseConfig dbConfig = DatabaseConfig.getInstance();
 
         SwingUtilities.invokeLater(() -> {
-            // Mostrar splash screen o mensaje de inicio
+            // Mostrar pantalla de inicio
             mostrarPantallaInicio();
 
-            // Verificar conexión a BD
+            // Verificar conexión a la base de datos
             if (!dbConfig.verificarConexion()) {
                 mostrarErrorConexion();
                 return;
             }
 
             // Iniciar ventana principal
-            LoginView login = new LoginView();
-            login.setVisible(true);
+            LoginView loginView = new LoginView();
+            loginView.setVisible(true);
         });
     }
 
@@ -56,7 +56,7 @@ public class Main {
                         "Versión 1.0\n\n" +
                         "Desarrollado con:\n" +
                         "- Java 21\n" +
-                        "- MySQL Database\n" +
+                        "- PostgreSQL Database\n" +
                         "- Arquitectura MVC\n" +
                         "- iText PDF\n\n" +
                         "Iniciando sistema...",
@@ -70,12 +70,12 @@ public class Main {
      */
     private static void mostrarErrorConexion() {
         String mensaje = "ERROR DE CONEXIÓN A BASE DE DATOS\n\n" +
-                "No se pudo establecer conexión con MySQL.\n\n" +
+                "No se pudo establecer conexión con PostgreSQL.\n\n" +
                 "Verifique que:\n" +
-                "1. MySQL Server esté ejecutándose\n" +
+                "1. PostgreSQL esté ejecutándose\n" +
                 "2. La base de datos 'sistema_licencias' exista\n" +
-                "3. Las credenciales sean correctas (usuario: root, password: root)\n" +
-                "4. El servidor esté en localhost:3306\n\n" +
+                "3. Las credenciales sean correctas (ej: usuario: postgres)\n" +
+                "4. El servidor esté en localhost:5432\n\n" +
                 "Para crear la base de datos, ejecute el script:\n" +
                 "src/main/resources/schema.sql\n\n" +
                 "La aplicación se cerrará.";
