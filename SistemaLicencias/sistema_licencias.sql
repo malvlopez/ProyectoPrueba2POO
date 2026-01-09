@@ -54,3 +54,35 @@ CREATE TABLE licencias (
 -- Insertar el Administrador inicial para poder entrar al sistema
 INSERT INTO usuarios (username, password_hash, rol, nombre_completo) 
 VALUES ('admin_root', 'admin123', 'ADMINISTRADOR', 'Super Administrador');
+
+
+-- Controladores para conductor
+
+ALTER TABLE conductores ADD CONSTRAINT chk_cedula CHECK (cedula ~ '^[0-9]{10}$');
+
+-- Cédula: exactamente 10 dígitos
+ALTER TABLE conductores ADD CONSTRAINT chk_conductores_cedula CHECK (cedula ~ '^[0-9]{10}$');
+
+-- Teléfono: 7 a 10 dígitos
+ALTER TABLE conductores ADD CONSTRAINT chk_conductores_telefono CHECK (telefono IS NULL OR telefono ~ '^[0-9]{7,10}$');
+
+-- Email válido
+ALTER TABLE conductores ADD CONSTRAINT chk_conductores_email
+CHECK (
+    email IS NULL OR
+    email ~* '^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$'
+);
+
+-- Fecha de nacimiento no futura
+ALTER TABLE conductores ADD CONSTRAINT chk_conductores_fecha_nacimiento CHECK (fecha_nacimiento <= CURRENT_DATE);
+
+
+
+--CONTROLADORES PARA USUARIO
+
+
+ALTER TABLE usuarios ADD CONSTRAINT chk_usuarios_nombre_completo
+CHECK (
+    nombre_completo ~ '^[A-Za-zÁÉÍÓÚáéíóúÑñ ]+$'
+);
+
