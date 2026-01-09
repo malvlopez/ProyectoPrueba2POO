@@ -2,11 +2,11 @@ package ec.edu.sistemalicencias.model.entities;
 
 public class Usuario {
     private Long id;
-    private String nombre;
+    private String username;
     private String passwordHash;
     private String rol;
     private boolean estado;
-    private String username;
+    private String NombreCompleto;
 
     public Long getId() {
         return id;
@@ -16,12 +16,12 @@ public class Usuario {
         this.id = id;
     }
 
-    public String getNombre() {
-        return nombre;
+    public String getNombreCompleto() {
+        return NombreCompleto;
     }
 
-    public void setNombre(String nombre) {
-        this.nombre = nombre;
+    public void setNombreCompleto(String nombreCompleto) {
+        this.NombreCompleto = nombreCompleto;
     }
 
     public String getPasswordHash() {
@@ -49,10 +49,10 @@ public class Usuario {
     }
 
     public String getUsername() {
-        return username;
+        return NombreCompleto;
     }
 
     public void setUsername(String username) {
-        this.username = username;
+        this.NombreCompleto = username;
     }
 }

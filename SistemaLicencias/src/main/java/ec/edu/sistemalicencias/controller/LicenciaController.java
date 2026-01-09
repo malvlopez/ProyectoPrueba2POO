@@ -49,6 +49,7 @@ public class LicenciaController {
      * @param conductor Conductor con datos actualizados
      * @throws LicenciaException Si hay errores
      */
+
     public void actualizarConductor(Conductor conductor) throws LicenciaException {
         licenciaService.actualizarConductor(conductor);
     }
