@@ -96,4 +96,17 @@ public class UsuarioDAO {
             throw new BaseDatosException("Error al actualizar los datos en la base de datos: " + e.getMessage());
         }
     }
+
+    public void actualizarEstado(long id, boolean nuevoEstado) throws BaseDatosException {
+        String sql = "UPDATE usuarios SET estado = ? WHERE id = ?";
+        try (Connection conn = DatabaseConfig.getInstance().obtenerConexion();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            pstmt.setBoolean(1, nuevoEstado);
+            pstmt.setLong(2, id);
+            pstmt.executeUpdate();
+        } catch (SQLException e) {
+            throw new BaseDatosException("Error al cambiar el estado del usuario: " + e.getMessage());
+        }
+    }
 }

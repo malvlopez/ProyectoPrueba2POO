@@ -74,4 +74,10 @@ public class UsuarioService {
 
         usuarioDAO.actualizar(usuario);
     }
+
+    public void alternarEstadoUsuario(long id, boolean estadoActual) throws BaseDatosException {
+        // Invertimos el valor: si es true pasa a false, y viceversa
+        boolean nuevoEstado = !estadoActual;
+        usuarioDAO.actualizarEstado(id, nuevoEstado);
+    }
 }

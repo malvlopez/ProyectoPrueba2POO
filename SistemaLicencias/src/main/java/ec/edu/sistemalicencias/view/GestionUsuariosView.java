@@ -19,7 +19,7 @@ public class GestionUsuariosView extends JFrame {
     private JButton btnRegistrarUsuario;
     private JButton btnActualizarDatos;
     private JButton btnMostrarUsuarios;
-    private JButton btnEliminarUsuario;
+    private JButton btnCambiarEstadoUsuario;
     private JButton btnRegistrarLogs;
     private JButton btnSalir;
 
@@ -63,10 +63,23 @@ public class GestionUsuariosView extends JFrame {
             MostrarUsuariosView ventanaMostrar = new MostrarUsuariosView();
             ventanaMostrar.setVisible(true);
         });
+
         btnActualizarDatos.addActionListener(e -> {
             ActualizarUsuarioView vistaActualizar = new ActualizarUsuarioView();
             vistaActualizar.setVisible(true);
             vistaActualizar.addWindowListener(new WindowAdapter() {
+                @Override
+                public void windowClosed(WindowEvent windowEvent) {
+                    actualizarTablaSiExiste();
+                }
+            });
+        });
+
+        btnCambiarEstadoUsuario.addActionListener(e -> {
+            CambiarEstadoView vistaEstado = new CambiarEstadoView();
+            vistaEstado.setVisible(true);
+
+            vistaEstado.addWindowListener(new WindowAdapter() {
                 @Override
                 public void windowClosed(WindowEvent windowEvent) {
                     actualizarTablaSiExiste();
@@ -144,11 +157,11 @@ public class GestionUsuariosView extends JFrame {
         if (btnMostrarUsuariosFont != null) btnMostrarUsuarios.setFont(btnMostrarUsuariosFont);
         btnMostrarUsuarios.setText("Mostrar Usuarios Registrados");
         panelPrincipal.add(btnMostrarUsuarios, new GridConstraints(2, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(150, 80), null, 0, false));
-        btnEliminarUsuario = new JButton();
-        Font btnEliminarUsuarioFont = this.$$$getFont$$$("Arial", -1, 14, btnEliminarUsuario.getFont());
-        if (btnEliminarUsuarioFont != null) btnEliminarUsuario.setFont(btnEliminarUsuarioFont);
-        btnEliminarUsuario.setText("Eliminar Usuario");
-        panelPrincipal.add(btnEliminarUsuario, new GridConstraints(2, 2, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(150, 80), null, 0, false));
+        btnCambiarEstadoUsuario = new JButton();
+        Font btnCambiarEstadoUsuarioFont = this.$$$getFont$$$("Arial", -1, 14, btnCambiarEstadoUsuario.getFont());
+        if (btnCambiarEstadoUsuarioFont != null) btnCambiarEstadoUsuario.setFont(btnCambiarEstadoUsuarioFont);
+        btnCambiarEstadoUsuario.setText("Cambiar Estado de Usuario");
+        panelPrincipal.add(btnCambiarEstadoUsuario, new GridConstraints(2, 2, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(150, 80), null, 0, false));
         btnRegistrarLogs = new JButton();
         Font btnRegistrarLogsFont = this.$$$getFont$$$("Arial", -1, 14, btnRegistrarLogs.getFont());
         if (btnRegistrarLogsFont != null) btnRegistrarLogs.setFont(btnRegistrarLogsFont);

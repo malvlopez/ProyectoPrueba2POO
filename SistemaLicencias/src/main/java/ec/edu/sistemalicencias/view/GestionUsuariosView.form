@@ -104,7 +104,7 @@
           <text value="Mostrar Usuarios Registrados"/>
         </properties>
       </component>
-      <component id="8067" class="javax.swing.JButton" binding="btnEliminarUsuario">
+      <component id="8067" class="javax.swing.JButton" binding="btnCambiarEstadoUsuario">
         <constraints>
           <grid row="2" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false">
             <preferred-size width="150" height="80"/>
@@ -112,7 +112,7 @@
         </constraints>
         <properties>
           <font name="Arial" size="14"/>
-          <text value="Eliminar Usuario"/>
+          <text value="Cambiar Estado de Usuario"/>
         </properties>
       </component>
       <component id="a5391" class="javax.swing.JButton" binding="btnRegistrarLogs">
