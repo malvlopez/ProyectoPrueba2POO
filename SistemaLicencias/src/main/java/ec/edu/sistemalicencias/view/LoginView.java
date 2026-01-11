@@ -15,20 +15,17 @@ import java.awt.event.ActionListener;
 import java.util.Locale;
 
 public class LoginView extends JFrame {
-
-
     private JPanel panelLogin;
     private JTextField txtUsuario;
     private JButton btnIngresar;
     private JPasswordField txtPassword;
-    private LoginController loginController;
+    private LoginController loginController = new LoginController();
+
 
     public LoginView() {
-
         if (panelLogin == null) {
             panelLogin = new JPanel();
         }
-
         panelLogin.setBorder(new EmptyBorder(40, 40, 40, 40));
         setTitle("Sistema de Licencias de Conducir - Ecuador");
         setContentPane(panelLogin);
@@ -37,23 +34,35 @@ public class LoginView extends JFrame {
         setLocationRelativeTo(null);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
-
         btnIngresar.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                String username = txtUsuario.getText();
+                String username = txtUsuario.getText().trim();
                 String password = new String(txtPassword.getPassword());
 
-                LoginController loginController = new LoginController();
+                // El login ya no dará error porque loginController ya existe
                 Usuario usuario = loginController.login(username, password);
 
                 if (usuario != null) {
                     UsuarioSesion.iniciarSesion(usuario);
-                    JOptionPane.showMessageDialog(LoginView.this, "Bienvenido " + usuario.getNombreCompleto());
-                    MainView main = new MainView();
-                    main.setVisible(true);
+
+                    // SIEMPRE ir al menú principal
+                    new MainView().setVisible(true);
+
                     LoginView.this.dispose();
                 }
+            else {
+                // 1. Mensaje de error
+                JOptionPane.showMessageDialog(LoginView.this,
+                        "Usuario o contraseña incorrectos. Por favor, intente de nuevo.",
+                        "Error de Autenticación",
+                        JOptionPane.ERROR_MESSAGE);
+
+                // 2. Limpieza de campos
+                txtUsuario.setText("");
+                txtPassword.setText("");
+                txtUsuario.requestFocus();
+            }
             }
         });
     }

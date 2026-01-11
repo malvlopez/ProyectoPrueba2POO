@@ -1,8 +1,8 @@
 package ec.edu.sistemalicencias.controller;
+
 import ec.edu.sistemalicencias.model.entities.Usuario;
 
 public class UsuarioSesion {
-
     private static Usuario usuarioActual;
 
     private UsuarioSesion() {}
@@ -24,6 +24,6 @@ public class UsuarioSesion {
     }
 
     public static String getRol() {
-        return usuarioActual != null ? usuarioActual.getRol() : null;
+        return (usuarioActual != null) ? usuarioActual.getRol() : null;
     }
 }
