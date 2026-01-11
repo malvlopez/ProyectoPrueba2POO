@@ -89,6 +89,14 @@ public class LicenciaService {
         }
     }
 
+    public boolean eliminarConductor(Long id) throws LicenciaException {
+        try {
+            return conductorDAO.eliminar(id);
+        } catch (BaseDatosException e) {
+            throw new LicenciaException("No se puede eliminar el conductor porque tiene licencias o registros asociados en el sistema.");
+        }
+    }
+
     /**
      * Valida los documentos de un conductor
      * @param conductorId ID del conductor

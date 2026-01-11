@@ -116,6 +116,30 @@ public class GestionConductoresView extends JFrame {
                 }
             }
         });
+        btnEliminar.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (!"ADMINISTRADOR".equalsIgnoreCase(UsuarioSesion.getUsuario().getRol())) {
+                    controller.mostrarError("Acceso denegado: Solo administradores pueden actualizar datos.");
+                    return;
+                }
+                if (conductorSeleccionado == null) {
+                    controller.mostrarError("Debe seleccionar un conductor de la tabla primero.");
+                    return;
+                }
+
+                if (controller.confirmar("¿Está seguro de eliminar permanentemente a " + conductorSeleccionado.getNombres() + "?")) {
+                    try {
+                        controller.eliminarConductor(conductorSeleccionado.getId());
+                        controller.mostrarExito("Conductor eliminado correctamente.");
+                        limpiarFormulario();
+                        cargarConductores();
+                    } catch (LicenciaException ex) {
+                        controller.mostrarError(ex.getMessage());
+                    }
+                }
+            }
+        });
     }
 
     /**

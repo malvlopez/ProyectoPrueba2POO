@@ -43,7 +43,9 @@ public class LicenciaController {
     public Long registrarConductor(Conductor conductor) throws LicenciaException {
         return licenciaService.registrarConductor(conductor);
     }
-
+    public boolean eliminarConductor(Long id) throws LicenciaException {
+        return licenciaService.eliminarConductor(id);
+    }
     /**
      * Actualiza los datos de un conductor
      * @param conductor Conductor con datos actualizados
