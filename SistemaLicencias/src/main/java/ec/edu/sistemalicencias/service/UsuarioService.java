@@ -8,21 +8,24 @@ import ec.edu.sistemalicencias.model.exceptions.BaseDatosException;
 public class UsuarioService {
     private final UsuarioDAO usuarioDAO = new UsuarioDAO();
 
-    public Usuario autenticar(String username, String password) throws AutenticacionException {
+    public Usuario autenticar(String username, String password)
+            throws AutenticacionException {
+
         try {
-            Usuario usuario = usuarioDAO.buscarPorUsername(username);
+            Usuario usuario = usuarioDAO.buscarPorUsername(username, password);
 
             if (usuario == null) {
-                throw new AutenticacionException("El nombre de usuario no existe.");
-            }
-
-            if (!usuario.getPasswordHash().equals(password)) {
-                throw new AutenticacionException("La contraseña ingresada es incorrecta.");
+                throw new AutenticacionException(
+                        "Usuario o contraseña incorrectos."
+                );
             }
 
             return usuario;
+
         } catch (BaseDatosException e) {
-            throw new AutenticacionException("Error de conexión con el servidor remoto.");
+            throw new AutenticacionException(
+                    "Error de conexión con el servidor remoto."
+            );
         }
     }
 }

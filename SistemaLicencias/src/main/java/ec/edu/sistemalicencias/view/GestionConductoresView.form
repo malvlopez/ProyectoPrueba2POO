@@ -175,6 +175,12 @@
               <text value="Guardar Conductor"/>
             </properties>
           </component>
+          <component id="eb0b0" class="javax.swing.JButton" binding="btnActualizarR">
+            <constraints/>
+            <properties>
+              <text value="Actualizar Registro"/>
+            </properties>
+          </component>
           <component id="f6g7h" class="javax.swing.JButton" binding="btnLimpiar">
             <constraints/>
             <properties>
@@ -185,6 +191,12 @@
             <constraints/>
             <properties>
               <text value="Actualizar Lista"/>
+            </properties>
+          </component>
+          <component id="368e8" class="javax.swing.JButton" binding="btnEliminar">
+            <constraints/>
+            <properties>
+              <text value="Eliminar Registro"/>
             </properties>
           </component>
           <component id="h8i9j" class="javax.swing.JButton" binding="btnCerrar">

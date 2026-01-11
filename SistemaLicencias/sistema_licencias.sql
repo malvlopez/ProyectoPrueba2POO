@@ -54,14 +54,3 @@ CREATE TABLE licencias (
 -- Insertar el Administrador inicial para poder entrar al sistema
 INSERT INTO usuarios (username, password_hash, rol, nombre_completo) 
 VALUES ('admin_root', 'admin123', 'ADMINISTRADOR', 'Super Administrador');
-
-
--- Actualizacion de admin y analista con password encriptado
-
-truncate table usuarios;
-CREATE EXTENSION IF NOT EXISTS pgcrypto;
-
-INSERT INTO usuarios (username, password_hash, rol, nombre_completo, estado, fecha_creacion)
-VALUES
-( 'analista', crypt('analista123', gen_salt('bf')), 'ANALISTA', 'Ronny Gavilanes', TRUE, CURRENT_TIMESTAMP),
-( 'admin', crypt('admin123', gen_salt('bf')), 'ADMINISTRADOR', 'Esleyther Peñaherrera', TRUE, CURRENT_TIMESTAMP);

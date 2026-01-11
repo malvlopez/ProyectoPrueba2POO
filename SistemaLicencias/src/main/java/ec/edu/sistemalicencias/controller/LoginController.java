@@ -10,12 +10,7 @@ public class LoginController {
 
     public Usuario login(String username, String password) {
         try {
-            Usuario usuario = usuarioDAO.buscarPorUsername(username);
-
-            if (usuario != null && usuario.getPasswordHash().equals(password)) {
-                return usuario;
-            }
-            return null;
+            return usuarioDAO.buscarPorUsername(username, password);
         } catch (BaseDatosException e) {
             JOptionPane.showMessageDialog(null, "Error de conexión con Supabase: " + e.getMessage(),
                     "Error Crítico", JOptionPane.ERROR_MESSAGE);

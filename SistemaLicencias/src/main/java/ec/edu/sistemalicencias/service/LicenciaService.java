@@ -45,25 +45,22 @@ public class LicenciaService {
      */
     public Long registrarConductor(Conductor conductor) throws LicenciaException {
         try {
-            // Validar datos del conductor
             conductor.validar();
 
-            // Verificar que no exista otro conductor con la misma cédula
             Conductor conductorExistente = conductorDAO.buscarPorCedula(conductor.getCedula());
-            if (conductorExistente != null) {
+            if (conductorExistente != null && !conductorExistente.getId().equals(conductor.getId())) {
                 throw new DocumentoInvalidoException(
                         "Ya existe un conductor registrado con la cédula: " + conductor.getCedula()
                 );
             }
 
-            // Guardar conductor
             Long id = conductorDAO.guardar(conductor);
             conductor.setId(id);
 
             return id;
 
         } catch (DocumentoInvalidoException e) {
-            throw e; // Reenviar excepción de validación
+            throw e;
         } catch (BaseDatosException e) {
             throw new LicenciaException("Error al registrar conductor", e);
         }

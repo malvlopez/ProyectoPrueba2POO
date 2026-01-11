@@ -40,19 +40,16 @@ public class LoginView extends JFrame {
                 String username = txtUsuario.getText().trim();
                 String password = new String(txtPassword.getPassword());
 
-                // El login ya no dará error porque loginController ya existe
                 Usuario usuario = loginController.login(username, password);
 
                 if (usuario != null) {
                     UsuarioSesion.iniciarSesion(usuario);
 
-                    // SIEMPRE ir al menú principal
                     new MainView().setVisible(true);
 
                     LoginView.this.dispose();
                 }
             else {
-                // 1. Mensaje de error
                 JOptionPane.showMessageDialog(LoginView.this,
                         "Usuario o contraseña incorrectos. Por favor, intente de nuevo.",
                         "Error de Autenticación",

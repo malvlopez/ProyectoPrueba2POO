@@ -6,11 +6,14 @@ import ec.edu.sistemalicencias.controller.LicenciaController;
 import ec.edu.sistemalicencias.model.TipoSangreConstantes;
 import ec.edu.sistemalicencias.model.entities.Conductor;
 import ec.edu.sistemalicencias.model.exceptions.LicenciaException;
+import ec.edu.sistemalicencias.controller.UsuarioSesion;
 
 import javax.swing.*;
 import javax.swing.border.TitledBorder;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
 import java.util.List;
@@ -46,6 +49,8 @@ public class GestionConductoresView extends JFrame {
     private JButton btnLimpiar;
     private JButton btnActualizar;
     private JButton btnCerrar;
+    private JButton btnEliminar;
+    private JButton btnActualizarR;
 
     /**
      * Constructor de la vista
@@ -64,6 +69,53 @@ public class GestionConductoresView extends JFrame {
         inicializarTabla();
         configurarEventos();
         cargarConductores();
+        btnActualizarR.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (!"ADMINISTRADOR".equalsIgnoreCase(UsuarioSesion.getUsuario().getRol())) {
+                    controller.mostrarError("Acceso denegado: Solo administradores pueden actualizar datos.");
+                    return;
+                }
+                if (conductorSeleccionado == null) {
+                    controller.mostrarError("Por favor, seleccione un conductor de la tabla para actualizar.");
+                    return;
+                }
+
+                try {
+                    // 3. Validar campos mínimos
+                    if (txtCedula.getText().trim().isEmpty() || txtNombres.getText().trim().isEmpty()) {
+                        controller.mostrarError("La cédula y los nombres no pueden estar vacíos.");
+                        return;
+                    }
+
+                    // 4. Actualizar el objeto existente (Mantiene el mismo ID de la DB)
+                    conductorSeleccionado.setCedula(txtCedula.getText().trim());
+                    conductorSeleccionado.setNombres(txtNombres.getText().trim().toUpperCase());
+                    conductorSeleccionado.setApellidos(txtApellidos.getText().trim().toUpperCase());
+                    conductorSeleccionado.setDireccion(txtDireccion.getText().trim());
+                    conductorSeleccionado.setTelefono(txtTelefono.getText().trim());
+                    conductorSeleccionado.setEmail(txtEmail.getText().trim());
+                    conductorSeleccionado.setTipoSangre((String) cmbTipoSangre.getSelectedItem());
+
+                    try {
+                        conductorSeleccionado.setFechaNacimiento(LocalDate.parse(txtFechaNacimiento.getText().trim()));
+                    } catch (DateTimeParseException ex) {
+                        controller.mostrarError("Fecha inválida. Use AAAA-MM-DD");
+                        return;
+                    }
+
+                    controller.registrarConductor(conductorSeleccionado);
+
+                    controller.mostrarExito("¡Registro actualizado correctamente!");
+
+                    limpiarFormulario();
+                    cargarConductores();
+
+                } catch (Exception ex) {
+                    controller.mostrarError("Error al actualizar: " + ex.getMessage());
+                }
+            }
+        });
     }
 
     /**
@@ -112,8 +164,12 @@ public class GestionConductoresView extends JFrame {
      * Guarda o actualiza un conductor
      */
     private void guardarConductor() {
+        String rol = UsuarioSesion.getUsuario().getRol();
+        if (!"ADMINISTRADOR".equalsIgnoreCase(rol)) {
+            controller.mostrarError("No tiene permisos para realizar esta acción");
+            return;
+        }
         try {
-            // Validar campos obligatorios
             if (txtCedula.getText().trim().isEmpty() ||
                     txtNombres.getText().trim().isEmpty() ||
                     txtApellidos.getText().trim().isEmpty()) {
@@ -121,7 +177,6 @@ public class GestionConductoresView extends JFrame {
                 return;
             }
 
-            // Crear o actualizar conductor
             Conductor conductor;
             if (conductorSeleccionado != null) {
                 conductor = conductorSeleccionado;
@@ -129,12 +184,10 @@ public class GestionConductoresView extends JFrame {
                 conductor = new Conductor();
             }
 
-            // Establecer datos
             conductor.setCedula(txtCedula.getText().trim());
             conductor.setNombres(txtNombres.getText().trim());
             conductor.setApellidos(txtApellidos.getText().trim());
 
-            // Parsear fecha
             try {
                 LocalDate fechaNac = LocalDate.parse(txtFechaNacimiento.getText().trim());
                 conductor.setFechaNacimiento(fechaNac);
@@ -320,12 +373,18 @@ public class GestionConductoresView extends JFrame {
         btnGuardar = new JButton();
         btnGuardar.setText("Guardar Conductor");
         panelBotones.add(btnGuardar);
+        btnActualizarR = new JButton();
+        btnActualizarR.setText("Actualizar Registro");
+        panelBotones.add(btnActualizarR);
         btnLimpiar = new JButton();
         btnLimpiar.setText("Limpiar");
         panelBotones.add(btnLimpiar);
         btnActualizar = new JButton();
         btnActualizar.setText("Actualizar Lista");
         panelBotones.add(btnActualizar);
+        btnEliminar = new JButton();
+        btnEliminar.setText("Eliminar Registro");
+        panelBotones.add(btnEliminar);
         btnCerrar = new JButton();
         btnCerrar.setText("Cerrar");
         panelBotones.add(btnCerrar);
@@ -337,4 +396,5 @@ public class GestionConductoresView extends JFrame {
     public JComponent $$$getRootComponent$$$() {
         return panelPrincipal;
     }
+
 }
