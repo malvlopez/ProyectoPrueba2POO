@@ -27,13 +27,3 @@ bin/
 
 ### Mac OS ###
 .DS_Store
-
-# Gradle
-.gradle/
-build/
-
-# Carpetas de compilación de IntelliJ
-out/
-
-# Otros
-.claude/

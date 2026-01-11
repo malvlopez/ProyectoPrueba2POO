@@ -36,7 +36,7 @@ public class MostrarUsuariosView extends JFrame {
         tblUsuarios.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
     }
 
-    private void cargarDatosTabla() {
+    public void cargarDatosTabla() {
         String[] columnas = {"ID", "Nombre Completo", "Username", "Rol", "Estado"};
         DefaultTableModel modelo = new DefaultTableModel(columnas, 0) {
             @Override

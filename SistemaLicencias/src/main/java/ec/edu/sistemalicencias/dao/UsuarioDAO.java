@@ -45,4 +45,55 @@ public class UsuarioDAO {
             throw new BaseDatosException("Error al registrar el usuario: " + e.getMessage());
         }
     }
+
+    public boolean existeUsername(String username) throws BaseDatosException {
+        String sql = "SELECT 1 FROM usuarios WHERE username = ?";
+        try (Connection conn = DatabaseConfig.getInstance().obtenerConexion();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setString(1, username);
+            try (ResultSet rs = pstmt.executeQuery()) {
+                return rs.next();
+            }
+        } catch (SQLException e) {
+            throw new BaseDatosException("Error al verificar disponibilidad del username: " + e.getMessage());
+        }
+    }
+
+    public Usuario buscarPorId(long id) throws BaseDatosException {
+        String sql = "SELECT id, username, rol, nombre_completo, estado FROM usuarios WHERE id = ?";
+        try (Connection conn = DatabaseConfig.getInstance().obtenerConexion();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            pstmt.setLong(1, id);
+            try (ResultSet rs = pstmt.executeQuery()) {
+                if (rs.next()) {
+                    Usuario u = new Usuario();
+                    u.setId(rs.getLong("id"));
+                    u.setUsername(rs.getString("username"));
+                    u.setRol(rs.getString("rol"));
+                    u.setNombreCompleto(rs.getString("nombre_completo"));
+                    u.setEstado(rs.getBoolean("estado"));
+                    return u;
+                }
+            }
+        } catch (SQLException e) {
+            throw new BaseDatosException("Error al buscar usuario: " + e.getMessage());
+        }
+        return null; // Si no lo encuentra
+    }
+
+    public void actualizar(Usuario usuario) throws BaseDatosException {
+        String sql = "UPDATE usuarios SET username = ?, rol = ?, nombre_completo = ?, estado = ? WHERE id = ?";
+        try (Connection conn = DatabaseConfig.getInstance().obtenerConexion();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setString(1, usuario.getUsername());
+            pstmt.setString(2, usuario.getRol());
+            pstmt.setString(3, usuario.getNombreCompleto());
+            pstmt.setBoolean(4, usuario.isEstado());
+            pstmt.setLong(5, usuario.getId());
+            pstmt.executeUpdate();
+        } catch (SQLException e) {
+            throw new BaseDatosException("Error al actualizar los datos en la base de datos: " + e.getMessage());
+        }
+    }
 }

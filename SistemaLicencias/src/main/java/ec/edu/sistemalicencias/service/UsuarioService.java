@@ -37,4 +37,41 @@ public class UsuarioService {
             throw new BaseDatosException("Error en el servicio al recuperar usuarios: " + e.getMessage());
         }
     }
+
+    public void registrarNuevoUsuario(Usuario usuario) throws BaseDatosException {
+        if (usuario.getNombreCompleto() == null || usuario.getNombreCompleto().trim().isEmpty() ||
+                usuario.getUsername() == null || usuario.getUsername().trim().isEmpty() ||
+                usuario.getPasswordHash() == null || usuario.getPasswordHash().trim().isEmpty() ||
+                usuario.getRol() == null) {
+            throw new BaseDatosException("Todos los campos son obligatorios.");
+        }
+
+        if (usuarioDAO.existeUsername(usuario.getUsername())) {
+            throw new BaseDatosException("El nombre de usuario '" + usuario.getUsername() + "' ya está registrado.");
+        }
+
+        usuarioDAO.insertar(usuario);
+    }
+
+    public Usuario obtenerUsuarioPorId(long id) throws BaseDatosException {
+        Usuario usuario = usuarioDAO.buscarPorId(id);
+        if (usuario == null) {
+            throw new BaseDatosException("No se encontró ningún usuario con el ID: " + id);
+        }
+        return usuario;
+    }
+
+    public void modificarUsuario(Usuario usuario) throws BaseDatosException {
+        if (usuario.getNombreCompleto() == null || usuario.getNombreCompleto().trim().isEmpty()) {
+            throw new BaseDatosException("El nombre completo es obligatorio.");
+        }
+        if (usuario.getUsername() == null || usuario.getUsername().trim().isEmpty()) {
+            throw new BaseDatosException("El nombre de usuario no puede quedar vacío.");
+        }
+        if (usuario.getPasswordHash() == null || usuario.getPasswordHash().trim().isEmpty()) {
+            throw new BaseDatosException("La contraseña no puede quedar vacía.");
+        }
+
+        usuarioDAO.actualizar(usuario);
+    }
 }
