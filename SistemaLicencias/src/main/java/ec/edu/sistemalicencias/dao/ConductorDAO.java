@@ -282,23 +282,43 @@ public class ConductorDAO implements Persistible<Conductor> {
      */
     @Override
     public boolean eliminar(Long id) throws BaseDatosException {
-        String sql = "DELETE FROM conductores WHERE id = ?";
-
         Connection conn = null;
-        PreparedStatement stmt = null;
-
         try {
             conn = dbConfig.obtenerConexion();
-            stmt = conn.prepareStatement(sql);
-            stmt.setLong(1, id);
+            conn.setAutoCommit(false);
 
-            int filasAfectadas = stmt.executeUpdate();
-            return filasAfectadas > 0;
+            // Eliminar Licencias
+            try (PreparedStatement stLic = conn.prepareStatement("DELETE FROM licencias WHERE conductor_id = ?")) {
+                stLic.setLong(1, id);
+                stLic.executeUpdate();
+            }
+
+            // Eliminar Pruebas Psicométricas
+            try (PreparedStatement stPrueba = conn.prepareStatement("DELETE FROM pruebas_psicometricas WHERE conductor_id = ?")) {
+                stPrueba.setLong(1, id);
+                stPrueba.executeUpdate();
+            }
+
+            try (PreparedStatement stCond = conn.prepareStatement("DELETE FROM conductores WHERE id = ?")) {
+                stCond.setLong(1, id);
+                int filasAfectadas = stCond.executeUpdate();
+
+                conn.commit();
+                return filasAfectadas > 0;
+            }
 
         } catch (SQLException e) {
-            throw new BaseDatosException("Error al eliminar conductor: " + e.getMessage(), e);
+            // 5. Si algo falla, revertimos TODO para no dejar datos huérfanos
+            if (conn != null) {
+                try {
+                    conn.rollback();
+                } catch (SQLException rollbackEx) {
+                    rollbackEx.printStackTrace();
+                }
+            }
+            throw new BaseDatosException("No se pudo eliminar el conductor y su historial: " + e.getMessage(), e);
         } finally {
-            cerrarRecursos(conn, stmt, null);
+            cerrarRecursos(conn, null, null);
         }
     }
 

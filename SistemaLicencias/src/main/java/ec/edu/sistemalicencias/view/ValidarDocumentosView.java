@@ -9,6 +9,8 @@ import ec.edu.sistemalicencias.model.exceptions.LicenciaException;
 import javax.swing.*;
 import javax.swing.border.TitledBorder;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
 /**
  * Vista para validación de documentos de conductores.
@@ -40,6 +42,7 @@ public class ValidarDocumentosView extends JFrame {
     private JButton btnDesmarcarTodos;
     private JButton btnGuardar;
     private JButton btnCerrar;
+    private JButton btnEliminarValidacion;
 
     public ValidarDocumentosView(LicenciaController controller) {
         this.controller = controller;
@@ -253,4 +256,5 @@ public class ValidarDocumentosView extends JFrame {
     public JComponent $$$getRootComponent$$$() {
         return panelPrincipal;
     }
+
 }

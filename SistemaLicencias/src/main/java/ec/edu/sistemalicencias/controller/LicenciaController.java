@@ -56,6 +56,10 @@ public class LicenciaController {
         licenciaService.actualizarConductor(conductor);
     }
 
+    public PruebaPsicometrica buscarPruebaPorConductorId(Long conductorId) throws LicenciaException {
+        return licenciaService.obtenerPruebaPorConductorId(conductorId);
+    }
+
     /**
      * Valida los documentos de un conductor
      * @param conductorId ID del conductor
@@ -257,6 +261,10 @@ public class LicenciaController {
                     JOptionPane.ERROR_MESSAGE);
             return false;
         }
+    }
+
+    public void eliminarPruebaPsicometrica(Long pruebaId) throws LicenciaException {
+        licenciaService.eliminarPruebaPsicometrica(pruebaId);
     }
 
     /**

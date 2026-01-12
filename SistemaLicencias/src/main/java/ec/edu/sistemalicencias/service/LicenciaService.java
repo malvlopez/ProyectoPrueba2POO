@@ -27,7 +27,6 @@ public class LicenciaService {
     private final ConductorDAO conductorDAO;
     private final PruebaPsicometricaDAO pruebaPsicometricaDAO;
     private final LicenciaDAO licenciaDAO;
-
     /**
      * Constructor que inicializa los DAOs
      */
@@ -144,6 +143,35 @@ public class LicenciaService {
         }
     }
 
+    public PruebaPsicometrica obtenerPruebaPorConductorId(Long conductorId) throws LicenciaException {
+        try {
+            List<PruebaPsicometrica> pruebas = pruebaPsicometricaDAO.buscarPorConductor(conductorId);
+
+            if (pruebas != null && !pruebas.isEmpty()) {
+                return pruebas.get(0);
+            }
+
+            return null;
+        } catch (BaseDatosException e) {
+            throw new LicenciaException("Error al obtener la prueba: " + e.getMessage());
+        }
+    }
+
+    public void eliminarPruebaPsicometrica(Long pruebaId) throws LicenciaException {
+        try {
+            List<Licencia> licencias = licenciaDAO.obtenerTodas();
+            for (Licencia l : licencias) {
+                if (pruebaId.equals(l.getPruebaPsicometricaId())) {
+                    licenciaDAO.eliminar(l.getId());
+                }
+            }
+
+            pruebaPsicometricaDAO.eliminar(pruebaId);
+
+        } catch (BaseDatosException e) {
+            throw new LicenciaException("Error al eliminar en cascada: " + e.getMessage());
+        }
+    }
     /**
      * Emite una nueva licencia de conducir
      * @param conductorId ID del conductor
@@ -198,6 +226,8 @@ public class LicenciaService {
                     );
                 }
             }
+
+
 
             // 5. Crear y guardar la licencia
             Licencia nuevaLicencia = new Licencia(conductorId, tipoLicencia);

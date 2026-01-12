@@ -7,13 +7,13 @@ import ec.edu.sistemalicencias.model.TipoSangreConstantes;
 import ec.edu.sistemalicencias.model.entities.Conductor;
 import ec.edu.sistemalicencias.model.exceptions.LicenciaException;
 import ec.edu.sistemalicencias.controller.UsuarioSesion;
+import javax.swing.table.TableRowSorter;
 
 import javax.swing.*;
 import javax.swing.border.TitledBorder;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import java.awt.event.*;
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
 import java.util.List;
@@ -27,6 +27,7 @@ import java.util.List;
  */
 @SuppressWarnings("unused")
 public class GestionConductoresView extends JFrame {
+    private final String TEXT_BUSCAR = "Buscar...";
     private final LicenciaController controller;
     private DefaultTableModel modeloTabla;
     private Conductor conductorSeleccionado;
@@ -51,6 +52,8 @@ public class GestionConductoresView extends JFrame {
     private JButton btnCerrar;
     private JButton btnEliminar;
     private JButton btnActualizarR;
+    private JTextField txtBuscar;
+    private TableRowSorter<DefaultTableModel> sorter;
 
     /**
      * Constructor de la vista
@@ -69,6 +72,8 @@ public class GestionConductoresView extends JFrame {
         inicializarTabla();
         configurarEventos();
         cargarConductores();
+        txtBuscar.setText(TEXT_BUSCAR);
+        txtBuscar.setForeground(Color.GRAY);
         btnActualizarR.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -140,6 +145,23 @@ public class GestionConductoresView extends JFrame {
                 }
             }
         });
+        txtBuscar.addFocusListener(new FocusAdapter() {
+            @Override
+            public void focusGained(FocusEvent e) {
+                if (txtBuscar.getText().equals(TEXT_BUSCAR)) {
+                    txtBuscar.setText("");
+                    txtBuscar.setForeground(Color.BLACK);
+                }
+            }
+
+            @Override
+            public void focusLost(FocusEvent e) {
+                if (txtBuscar.getText().isEmpty()) {
+                    txtBuscar.setText(TEXT_BUSCAR);
+                    txtBuscar.setForeground(Color.GRAY);
+                }
+            }
+        });
     }
 
     /**
@@ -153,13 +175,15 @@ public class GestionConductoresView extends JFrame {
      * Inicializa la tabla de conductores
      */
     private void inicializarTabla() {
-        String[] columnas = {"ID", "Cédula", "Nombres", "Apellidos", "Fecha Nac.", "Teléfono", "Docs. Validados"};
+        String[] columnas = {"#", "ID", "Cédula", "Nombres", "Apellidos", "Fecha Nac.", "Teléfono", "Docs. Validados"};
         modeloTabla = new DefaultTableModel(columnas, 0) {
             @Override
             public boolean isCellEditable(int row, int column) {
                 return false;
             }
         };
+        sorter = new TableRowSorter<>(modeloTabla);
+        tablaConductores.setRowSorter(sorter);
         tablaConductores.setModel(modeloTabla);
         tablaConductores.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
     }
@@ -173,7 +197,16 @@ public class GestionConductoresView extends JFrame {
         btnActualizar.addActionListener(e -> cargarConductores());
         btnCerrar.addActionListener(e -> dispose());
 
-        // Selección en la tabla para editar
+        txtBuscar.addKeyListener(new KeyAdapter() {
+            public void keyReleased(KeyEvent e) {
+                String texto = txtBuscar.getText().trim();
+                if (texto.equals(TEXT_BUSCAR) || texto.isEmpty()) {
+                    sorter.setRowFilter(null);
+                } else {
+                    sorter.setRowFilter(RowFilter.regexFilter("(?i)" + texto));
+                }
+            }
+        });
         tablaConductores.getSelectionModel().addListSelectionListener(e -> {
             if (!e.getValueIsAdjusting()) {
                 int filaSeleccionada = tablaConductores.getSelectedRow();
@@ -256,8 +289,11 @@ public class GestionConductoresView extends JFrame {
             List<Conductor> conductores = controller.obtenerTodosConductores();
             modeloTabla.setRowCount(0);
 
-            for (Conductor c : conductores) {
+            for (int i = 0; i < conductores.size(); i++) {
+                Conductor c = conductores.get(i);
+
                 Object[] fila = {
+                        (i + 1),        // ESTO garantiza que empiece en 1 (0+1), luego 2 (1+1), etc.
                         c.getId(),
                         c.getCedula(),
                         c.getNombres(),
@@ -280,7 +316,9 @@ public class GestionConductoresView extends JFrame {
      */
     private void cargarConductorEnFormulario(int fila) {
         try {
-            Long id = (Long) modeloTabla.getValueAt(fila, 0);
+            int filaModelo = tablaConductores.convertRowIndexToModel(fila);
+
+            Long id = (Long) modeloTabla.getValueAt(filaModelo, 1);
             conductorSeleccionado = controller.buscarConductorPorId(id);
 
             if (conductorSeleccionado != null) {
@@ -338,7 +376,7 @@ public class GestionConductoresView extends JFrame {
      */
     private void $$$setupUI$$$() {
         panelPrincipal = new JPanel();
-        panelPrincipal.setLayout(new GridLayoutManager(3, 1, new Insets(15, 15, 15, 15), -1, -1));
+        panelPrincipal.setLayout(new GridLayoutManager(4, 1, new Insets(15, 15, 15, 15), -1, -1));
         panelPrincipal.setMinimumSize(new Dimension(900, 600));
         panelPrincipal.setPreferredSize(new Dimension(900, 600));
         panelFormulario = new JPanel();
@@ -387,13 +425,13 @@ public class GestionConductoresView extends JFrame {
         cmbTipoSangre = new JComboBox();
         panelFormulario.add(cmbTipoSangre, new GridConstraints(3, 3, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         scrollTabla = new JScrollPane();
-        panelPrincipal.add(scrollTabla, new GridConstraints(1, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
+        panelPrincipal.add(scrollTabla, new GridConstraints(2, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
         scrollTabla.setBorder(BorderFactory.createTitledBorder(BorderFactory.createLineBorder(Color.black), "Conductores Registrados", TitledBorder.DEFAULT_JUSTIFICATION, TitledBorder.DEFAULT_POSITION, null, null));
         tablaConductores = new JTable();
         scrollTabla.setViewportView(tablaConductores);
         panelBotones = new JPanel();
         panelBotones.setLayout(new FlowLayout(FlowLayout.CENTER, 5, 5));
-        panelPrincipal.add(panelBotones, new GridConstraints(2, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        panelPrincipal.add(panelBotones, new GridConstraints(3, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         btnGuardar = new JButton();
         btnGuardar.setText("Guardar Conductor");
         panelBotones.add(btnGuardar);
@@ -412,6 +450,9 @@ public class GestionConductoresView extends JFrame {
         btnCerrar = new JButton();
         btnCerrar.setText("Cerrar");
         panelBotones.add(btnCerrar);
+        txtBuscar = new JTextField();
+        txtBuscar.setText("");
+        panelPrincipal.add(txtBuscar, new GridConstraints(1, 0, 1, 1, GridConstraints.ANCHOR_SOUTHEAST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(150, -1), null, 0, false));
     }
 
     /**

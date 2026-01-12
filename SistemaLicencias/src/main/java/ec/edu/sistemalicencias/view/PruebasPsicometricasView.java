@@ -12,6 +12,8 @@ import javax.swing.border.TitledBorder;
 import javax.swing.plaf.FontUIResource;
 import javax.swing.text.StyleContext;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.util.Locale;
 
 /**
@@ -21,6 +23,7 @@ import java.util.Locale;
 public class PruebasPsicometricasView extends JFrame {
     private final LicenciaController controller;
     private Conductor conductorActual;
+    private PruebaPsicometrica pruebaExistente;
 
     // Componentes enlazados desde el .form (UI Designer)
     private JPanel panelPrincipal;
@@ -46,6 +49,7 @@ public class PruebasPsicometricasView extends JFrame {
     private JButton btnGuardar;
     private JButton btnLimpiar;
     private JButton btnCerrar;
+    private JButton btnEliminarP;
 
     public PruebasPsicometricasView(LicenciaController controller) {
         this.controller = controller;
@@ -54,6 +58,37 @@ public class PruebasPsicometricasView extends JFrame {
         setSize(700, 600);
         setLocationRelativeTo(null);
         configurarEventos();
+
+        btnEliminarP.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (pruebaExistente == null || pruebaExistente.getId() == null) {
+                    controller.mostrarError("No hay una prueba cargada para eliminar.");
+                    return;
+                }
+                String msg = "¿Está seguro de eliminar esta prueba?\n\n" +
+                        "¡ADVERTENCIA!: Si este conductor ya tiene una LICENCIA emitida con esta prueba, " +
+                        "la licencia TAMBIÉN será eliminada permanentemente.";
+
+                String nombreConductor = (conductorActual != null) ? conductorActual.getNombreCompleto() : "este conductor";
+                boolean confirmado = controller.confirmar("¿Está seguro de eliminar permanentemente los resultados de " + nombreConductor + "?");
+
+                if (confirmado) {
+                    try {
+                        controller.eliminarPruebaPsicometrica(pruebaExistente.getId());
+
+                        controller.mostrarExito("La prueba ha sido eliminada del sistema.");
+                        limpiarFormulario();
+
+                        pruebaExistente = null;
+                        btnGuardar.setText("Guardar Resultados");
+
+                    } catch (LicenciaException ex) {
+                        controller.mostrarError("Error al intentar eliminar: " + ex.getMessage());
+                    }
+                }
+            }
+        });
     }
 
     private void configurarEventos() {
@@ -65,21 +100,50 @@ public class PruebasPsicometricasView extends JFrame {
     }
 
     private void buscarConductor() {
+        String cedula = txtCedula.getText().trim();
+        if (cedula.isEmpty()) {
+            controller.mostrarError("Por favor ingrese una cédula");
+            return;
+        }
+
         try {
-            conductorActual = controller.buscarConductorPorCedula(txtCedula.getText().trim());
+            // 1. Siempre limpiar los datos previos antes de una nueva búsqueda
+            limpiarFormulario();
+            conductorActual = null;
+            pruebaExistente = null;
+            txtInfoConductor.setText("");
+
+            // 2. Buscar al conductor
+            conductorActual = controller.buscarConductorPorCedula(cedula);
+
             if (conductorActual != null) {
                 txtInfoConductor.setText(String.format("Nombre: %s\nCédula: %s\nEdad: %d años",
                         conductorActual.getNombreCompleto(),
                         conductorActual.getCedula(),
                         conductorActual.calcularEdad()));
+
+                pruebaExistente = controller.buscarPruebaPorConductorId(conductorActual.getId());
+
+                if (pruebaExistente != null) {
+                    txtNotaReaccion.setText(String.valueOf(pruebaExistente.getNotaReaccion()));
+                    txtNotaAtencion.setText(String.valueOf(pruebaExistente.getNotaAtencion()));
+                    txtNotaCoordinacion.setText(String.valueOf(pruebaExistente.getNotaCoordinacion()));
+                    txtNotaPercepcion.setText(String.valueOf(pruebaExistente.getNotaPercepcion()));
+                    txtNotaPsicologica.setText(String.valueOf(pruebaExistente.getNotaPsicologica()));
+                    txtObservaciones.setText(pruebaExistente.getObservaciones());
+
+                    btnGuardar.setText("Guardar Cambios");
+                } else {
+                    btnGuardar.setText("Guardar Resultados");
+                }
             } else {
                 controller.mostrarError("Conductor no encontrado");
-                txtInfoConductor.setText("");
             }
         } catch (LicenciaException ex) {
             controller.mostrarError("Error: " + ex.getMessage());
         }
     }
+
 
     private void calcularPromedio() {
         try {
@@ -89,16 +153,23 @@ public class PruebasPsicometricasView extends JFrame {
             double percepcion = Double.parseDouble(txtNotaPercepcion.getText().trim());
             double psicologica = Double.parseDouble(txtNotaPsicologica.getText().trim());
 
+            double[] notas = {reaccion, atencion, coordinacion, percepcion, psicologica};
+            for (double nota : notas) {
+                if (nota < 0 || nota > 100) {
+                    controller.mostrarError("Las notas deben estar entre 0 y 100");
+                    return;
+                }
+            }
             double promedio = (reaccion + atencion + coordinacion + percepcion + psicologica) / 5.0;
             lblPromedio.setText(String.format("Promedio: %.2f", promedio));
-
-            if (promedio >= 70) {
+            if (promedio >= 70.0) {
                 lblResultado.setText("Estado: APROBADO");
-                lblResultado.setForeground(Color.GREEN.darker());
+                lblResultado.setForeground(new Color(0, 153, 0)); // Verde oscuro
             } else {
                 lblResultado.setText("Estado: REPROBADO");
                 lblResultado.setForeground(Color.RED);
             }
+
         } catch (NumberFormatException ex) {
             controller.mostrarError("Ingrese todas las notas correctamente");
         }
@@ -111,7 +182,16 @@ public class PruebasPsicometricasView extends JFrame {
         }
 
         try {
-            PruebaPsicometrica prueba = new PruebaPsicometrica(conductorActual.getId());
+            PruebaPsicometrica prueba;
+
+            if (pruebaExistente != null) {
+                prueba = pruebaExistente;
+            } else {
+                // Es una prueba nueva
+                prueba = new PruebaPsicometrica(conductorActual.getId());
+            }
+
+            // Seteamos los nuevos valores (esto sobreescribe los anteriores en el objeto)
             prueba.setNotaReaccion(Double.parseDouble(txtNotaReaccion.getText().trim()));
             prueba.setNotaAtencion(Double.parseDouble(txtNotaAtencion.getText().trim()));
             prueba.setNotaCoordinacion(Double.parseDouble(txtNotaCoordinacion.getText().trim()));
@@ -119,16 +199,14 @@ public class PruebasPsicometricasView extends JFrame {
             prueba.setNotaPsicologica(Double.parseDouble(txtNotaPsicologica.getText().trim()));
             prueba.setObservaciones(txtObservaciones.getText().trim());
 
-            Long id = controller.registrarPruebaPsicometrica(prueba);
-            controller.mostrarExito("Prueba registrada exitosamente con ID: " + id +
-                    "\nPromedio: " + String.format("%.2f", prueba.calcularPromedio()) +
-                    "\nEstado: " + prueba.obtenerEstado());
+            // Al enviar 'prueba', si prueba.getId() no es null, el DAO sabrá que debe actualizar
+            controller.registrarPruebaPsicometrica(prueba);
 
+            controller.mostrarExito("Datos guardados/actualizados correctamente");
             limpiarFormulario();
+            pruebaExistente = null; // Limpiamos para la siguiente operación
 
-        } catch (NumberFormatException ex) {
-            controller.mostrarError("Error en formato de notas");
-        } catch (LicenciaException ex) {
+        } catch (Exception ex) {
             controller.mostrarError("Error: " + ex.getMessage());
         }
     }
@@ -245,6 +323,9 @@ public class PruebasPsicometricasView extends JFrame {
         btnLimpiar = new JButton();
         btnLimpiar.setText("Limpiar");
         panelBotones.add(btnLimpiar);
+        btnEliminarP = new JButton();
+        btnEliminarP.setText("Eliminar Prueba");
+        panelBotones.add(btnEliminarP);
         btnCerrar = new JButton();
         btnCerrar.setText("Cerrar");
         panelBotones.add(btnCerrar);
@@ -278,4 +359,5 @@ public class PruebasPsicometricasView extends JFrame {
     public JComponent $$$getRootComponent$$$() {
         return panelPrincipal;
     }
+
 }
