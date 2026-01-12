@@ -86,6 +86,11 @@ public class GestionUsuariosView extends JFrame {
                 }
             });
         });
+
+        btnRegistrarLogs.addActionListener(e -> {
+            MostrarLogsView vistaLogs = new MostrarLogsView();
+            vistaLogs.setVisible(true);
+        });
     }
 
     private void actualizarTablaSiExiste() {
@@ -165,7 +170,7 @@ public class GestionUsuariosView extends JFrame {
         btnRegistrarLogs = new JButton();
         Font btnRegistrarLogsFont = this.$$$getFont$$$("Arial", -1, 14, btnRegistrarLogs.getFont());
         if (btnRegistrarLogsFont != null) btnRegistrarLogs.setFont(btnRegistrarLogsFont);
-        btnRegistrarLogs.setText("Registro de Logs");
+        btnRegistrarLogs.setText("Historia de Logins");
         panelPrincipal.add(btnRegistrarLogs, new GridConstraints(3, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(150, 80), null, 0, false));
         btnSalir = new JButton();
         Font btnSalirFont = this.$$$getFont$$$("Arial", -1, 14, btnSalir.getFont());

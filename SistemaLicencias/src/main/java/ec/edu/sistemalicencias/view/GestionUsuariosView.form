@@ -123,7 +123,7 @@
         </constraints>
         <properties>
           <font name="Arial" size="14"/>
-          <text value="Registro de Logs"/>
+          <text value="Historia de Logins"/>
         </properties>
       </component>
       <component id="69c57" class="javax.swing.JButton" binding="btnSalir">

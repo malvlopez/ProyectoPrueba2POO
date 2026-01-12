@@ -3,6 +3,8 @@ package ec.edu.sistemalicencias.controller;
 import ec.edu.sistemalicencias.dao.LoginDAO;
 import ec.edu.sistemalicencias.model.entities.Usuario;
 import ec.edu.sistemalicencias.model.exceptions.BaseDatosException;
+import org.mindrot.jbcrypt.BCrypt;
+
 import javax.swing.JOptionPane;
 
 public class LoginController {
@@ -12,7 +14,8 @@ public class LoginController {
         try {
             Usuario usuario = loginDAO.buscarPorUsername(username);
 
-            if (usuario != null && usuario.getPasswordHash().equals(password)) {
+            if (usuario != null && BCrypt.checkpw(password, usuario.getPasswordHash())) {
+                loginDAO.insertarRegistro(usuario.getId());
                 return usuario;
             }
             return null;
