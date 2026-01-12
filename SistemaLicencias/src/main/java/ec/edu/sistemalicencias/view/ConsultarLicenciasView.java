@@ -12,6 +12,8 @@ import javax.swing.*;
 import javax.swing.border.TitledBorder;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -35,6 +37,7 @@ public class ConsultarLicenciasView extends JFrame {
     private JTable tableLicencias;
     private JButton btnGenerarPDF;
     private JButton btnCerrar;
+    private JButton btnEliminarL;
 
     public ConsultarLicenciasView(LicenciaController controller) {
         this.controller = controller;
@@ -45,6 +48,32 @@ public class ConsultarLicenciasView extends JFrame {
         inicializarTabla();
         configurarEventos();
         cargarTodasLicencias();
+        btnEliminarL.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                int fila = tableLicencias.getSelectedRow();
+                if (fila == -1) {
+                    controller.mostrarError("Debe seleccionar una licencia de la tabla para eliminar.");
+                    return;
+                }
+                Long id = (Long) modeloTabla.getValueAt(fila, 0);
+                String numero = (String) modeloTabla.getValueAt(fila, 1);
+                String conductor = (String) modeloTabla.getValueAt(fila, 2);
+                String msg = "¿Está seguro de eliminar permanentemente la licencia N° " + numero + "?\n" +
+                        "Conductor: " + conductor + "\n\n" +
+                        "Esta acción no se puede deshacer.";
+
+                if (controller.confirmar(msg)) {
+                    try {
+                        controller.eliminarLicencia(id);
+                        controller.mostrarExito("Licencia eliminada correctamente.");
+                        cargarTodasLicencias(); // Refrescar la tabla
+                    } catch (LicenciaException ex) {
+                        controller.mostrarError("No se pudo eliminar: " + ex.getMessage());
+                    }
+                }
+            }
+        });
     }
 
     private void inicializarTabla() {
@@ -200,6 +229,9 @@ public class ConsultarLicenciasView extends JFrame {
         btnGenerarPDF = new JButton();
         btnGenerarPDF.setText("Generar PDF de Seleccionada");
         panelBotones.add(btnGenerarPDF);
+        btnEliminarL = new JButton();
+        btnEliminarL.setText("Eliminar");
+        panelBotones.add(btnEliminarL);
         btnCerrar = new JButton();
         btnCerrar.setText("Cerrar");
         panelBotones.add(btnCerrar);
@@ -211,4 +243,5 @@ public class ConsultarLicenciasView extends JFrame {
     public JComponent $$$getRootComponent$$$() {
         return panelPrincipal;
     }
+
 }

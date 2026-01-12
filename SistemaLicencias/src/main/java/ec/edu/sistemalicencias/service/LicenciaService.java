@@ -172,6 +172,22 @@ public class LicenciaService {
             throw new LicenciaException("Error al eliminar en cascada: " + e.getMessage());
         }
     }
+
+    public void eliminarLicencia(Long licenciaId) throws LicenciaException {
+        try {
+            // Verificar que exista
+            Licencia lic = licenciaDAO.buscarPorId(licenciaId);
+            if (lic == null) {
+                throw new LicenciaException("La licencia no existe.");
+            }
+
+            // Eliminar directamente
+            licenciaDAO.eliminar(licenciaId);
+
+        } catch (BaseDatosException e) {
+            throw new LicenciaException("Error al eliminar la licencia: " + e.getMessage());
+        }
+    }
     /**
      * Emite una nueva licencia de conducir
      * @param conductorId ID del conductor

@@ -266,7 +266,9 @@ public class LicenciaController {
     public void eliminarPruebaPsicometrica(Long pruebaId) throws LicenciaException {
         licenciaService.eliminarPruebaPsicometrica(pruebaId);
     }
-
+    public void eliminarLicencia(Long licenciaId) throws LicenciaException {
+        licenciaService.eliminarLicencia(licenciaId);
+    }
     /**
      * Genera un documento PDF de licencia con selector de archivo
      * @param licenciaId ID de la licencia
